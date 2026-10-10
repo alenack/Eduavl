@@ -49,6 +49,12 @@
   padding: 0;
 }
 
+html {
+  box-sizing: border-box;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-main);
@@ -58,6 +64,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
 }
 
 /* Typography */
@@ -249,10 +258,12 @@ p {
   margin: 0 auto;
   padding: 1.5rem;
   width: 100%;
+  box-sizing: border-box;
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  overflow-x: hidden;
 }
 
 /* Cards */
@@ -262,6 +273,9 @@ p {
   border-radius: var(--radius-lg);
   padding: 1.25rem 1.5rem;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card-header {
@@ -494,12 +508,14 @@ p {
   color: var(--text-primary);
 }
 
-/* Workspace Grid (Left Form, Right Table) */
+/* Workspace Grid (Left Form, Right AVL Tree) */
 .workspace-grid {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 380px minmax(0, 1fr);
   gap: 1.5rem;
-  align-items: start;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 1024px) {
@@ -508,17 +524,24 @@ p {
   }
 }
 
-/* Student Registry Form */
+/* Student Registry Form Card */
+.form-card {
+  display: flex;
+  flex-direction: column;
+}
+
 .student-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  flex: 1;
+  justify-content: space-between;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
+/* Form Stack: Vertically Stacked Form Fields */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .form-group {
@@ -527,35 +550,41 @@ p {
   gap: 0.35rem;
 }
 
-.form-group.full-span {
-  grid-column: 1 / -1;
-}
-
 .form-group label {
-  font-size: 0.8rem;
+  font-size: 0.825rem;
   font-weight: 600;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .required {
   color: var(--color-rose);
+  font-weight: 700;
 }
 
 .field-hint {
-  font-size: 0.72rem;
+  font-size: 0.725rem;
   color: var(--text-muted);
+  line-height: 1.35;
 }
 
 .student-form input,
 .student-form select {
-  padding: 0.5rem 0.75rem;
+  width: 100%;
+  padding: 0.58rem 0.8rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   background-color: var(--bg-card);
   color: var(--text-primary);
   transition: all 0.15s ease;
+}
+
+.student-form input::placeholder {
+  color: #94a3b8;
 }
 
 .student-form input:focus,
@@ -569,7 +598,9 @@ p {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-spinner {
@@ -586,26 +617,35 @@ p {
   to { transform: rotate(360deg); }
 }
 
-/* Interactive Student Table */
+/* Interactive Student Table (Full Width Lower Section) */
 .table-card {
-  min-height: 480px;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  width: 100%;
 }
 
 .table-search-box input {
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 0.825rem;
-  width: 220px;
+  width: 250px;
+  background-color: var(--bg-card);
+  transition: all 0.15s ease;
+}
+
+.table-search-box input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .table-responsive {
   overflow-x: auto;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  flex: 1;
+  background-color: #ffffff;
 }
 
 .student-table {
@@ -621,16 +661,17 @@ p {
 }
 
 .student-table th {
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 1rem;
   font-weight: 600;
   font-size: 0.78rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .student-table td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-secondary);
   vertical-align: middle;
@@ -673,20 +714,21 @@ p {
   background-color: var(--color-rose-light);
 }
 
-.table-btn-view {
-  color: var(--brand-primary);
-  margin-right: 0.35rem;
-}
 
-.table-btn-view:hover {
-  background-color: var(--brand-primary-light);
-}
 
 .text-right {
   text-align: right;
 }
 
 /* Tree Visualization Section */
+.tree-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 580px;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .tree-controls {
   display: flex;
   align-items: center;
@@ -718,20 +760,26 @@ p {
 .tree-canvas-wrapper {
   position: relative;
   width: 100%;
-  min-height: 380px;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 440px;
   background-color: #fafbfc;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
+  align-items: center;
   justify-content: center;
   padding: 1.5rem;
 }
 
 .tree-svg {
   width: 100%;
-  min-width: 800px;
-  min-height: 360px;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 .tree-branch {
