@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Minimalist Real-Time Student Record Management System powered by an AVL Tree C Backend." />
+  <title>EduAVL | Real-Time Student Record Management</title>
+  
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+            <path d="M6 6h10" />
+            <path d="M6 10h10" />
+            <path d="M8 18h12" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>EduAVL <span class="brand-badge">C-Engine</span></h1>
+          <p>Real-Time Student Records • O(log n) Self-Balancing AVL Tree</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics & Status -->
+      <div class="header-metrics">
+        <div class="metric-pill" title="Server Connection Status">
+          <span class="status-indicator"></span>
+          <span class="metric-label">Server:</span>
+          <span class="metric-val" id="stat-server">Port 8080</span>
+        </div>
+        <div class="metric-pill">
+          <span class="metric-label">Students:</span>
+          <span class="metric-val" id="stat-count">0</span>
+        </div>
+        <div class="metric-pill">
+          <span class="metric-label">Tree Height:</span>
+          <span class="metric-val" id="stat-height">0</span>
+        </div>
+        <div class="metric-pill">
+          <span class="metric-label">AVL Balance:</span>
+          <span class="metric-val badge-balanced" id="stat-balance">Balanced</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button id="btn-seed" class="btn btn-secondary" title="Seed realistic sample student dataset">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          </svg>
+          Seed Demo
+        </button>
+        <button id="btn-clear" class="btn btn-outline-danger" title="Clear all records from AVL tree">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+          Clear
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    <!-- Live Rotation Activity Notice -->
+    <section class="rotation-bar" id="rotation-bar">
+      <div class="rotation-badge">AVL Monitor</div>
+      <div class="rotation-text" id="rotation-msg">System initialized. Ready for operations.</div>
+    </section>
+
+    <!-- Quick Search Section (Prominent Lookup for Teachers) -->
+    <section class="search-section card">
+      <div class="section-title-wrap">
+        <h2>Quick Student Lookup</h2>
+        <span class="badge-sub">O(log n) BST Lookup</span>
+      </div>
+      <form id="search-form" class="search-bar-form">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="number" id="search-id-input" placeholder="Search by Student ID (e.g. 104, 102, 108)..." min="1" required />
+          <button type="button" id="btn-search-clear" class="clear-input-btn" title="Clear search">✕</button>
+        </div>
+        <button type="submit" class="btn btn-primary">Search Record</button>
+      </form>
+
+      <!-- Candidate Profile Card Container -->
+      <div id="search-result-container" class="search-result-area">
+        <!-- Injected via JavaScript when searched -->
+      </div>
+    </section>
+
+    <!-- 2-Column Dashboard Workspace -->
+    <div class="workspace-grid">
+      <!-- Left Column: Student Registry Form -->
+      <section class="card form-card">
+        <div class="card-header">
+          <div>
+            <h2>Register Student</h2>
+            <p class="section-desc">Inserts node into AVL tree with automatic balancing</p>
+          </div>
+          <span class="tag-pill">Self-Balancing</span>
+        </div>
+
+        <form id="student-form" class="student-form" novalidate>
+          <div class="form-grid">
+            <!-- Student ID -->
+            <div class="form-group">
+              <label for="student-id">Student ID <span class="required">*</span></label>
+              <input type="number" id="student-id" placeholder="e.g. 109" min="1" required />
+              <span class="field-hint">Unique integer key used for AVL balance</span>
+            </div>
+
+            <!-- Full Name -->
+            <div class="form-group">
+              <label for="full-name">Full Name <span class="required">*</span></label>
+              <input type="text" id="full-name" placeholder="e.g. Priya Sharma" required />
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+              <label for="gender">Gender <span class="required">*</span></label>
+              <select id="gender" required>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="form-group">
+              <label for="dob">Date of Birth</label>
+              <input type="date" id="dob" value="2003-05-15" />
+            </div>
+
+            <!-- Course -->
+            <div class="form-group">
+              <label for="course">Course / Department <span class="required">*</span></label>
+              <select id="course" required>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Artificial Intelligence">Artificial Intelligence</option>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="Information Tech">Information Tech</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+              </select>
+            </div>
+
+            <!-- Contact -->
+            <div class="form-group">
+              <label for="contact">Contact / Email</label>
+              <input type="text" id="contact" placeholder="e.g. priya.s@univ.edu or phone" />
+            </div>
+
+            <!-- Address -->
+            <div class="form-group full-span">
+              <label for="address">Residential Address</label>
+              <input type="text" id="address" placeholder="e.g. Flat 4B, Greenfield Colony, Bangalore" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="reset" class="btn btn-secondary" id="btn-reset-form">Reset Form</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-student">
+              <span class="btn-spinner" id="form-spinner"></span>
+              Register Student
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Interactive Student Table -->
+      <section class="card table-card">
+        <div class="card-header">
+          <div>
+            <h2>Student Directory</h2>
+            <p class="section-desc">Sorted in strictly ascending order via In-Order Traversal</p>
+          </div>
+          <div class="table-search-box">
+            <input type="text" id="table-filter" placeholder="Filter in-order table..." />
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="student-table" id="student-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Course</th>
+                <th>Gender</th>
+                <th>Contact</th>
+                <th>DOB</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="student-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- AVL Tree Visualization Section -->
+    <section class="card tree-card">
+      <div class="card-header">
+        <div>
+          <h2>AVL Tree Architecture & Rotations</h2>
+          <p class="section-desc">Interactive visual node map reflecting the live C backend AVL Tree structure</p>
+        </div>
+        <div class="tree-controls">
+          <div class="legend">
+            <span class="legend-item"><span class="legend-dot dot-balanced"></span> Balanced (BF: 0)</span>
+            <span class="legend-item"><span class="legend-dot dot-mild"></span> Slight Skew (BF: &plusmn;1)</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh-tree">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+            Redraw Tree
+          </button>
+        </div>
+      </div>
+
+      <!-- SVG Tree Visual Canvas -->
+      <div class="tree-canvas-wrapper" id="tree-canvas-wrapper">
+        <svg id="tree-svg" class="tree-svg"></svg>
+        <div id="tree-empty-state" class="tree-empty-state" style="display: none;">
+          <p>Tree is currently empty. Register a student or click <strong>Seed Demo</strong> to populate records.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tree Traversals Explorer -->
+    <section class="card traversal-card">
+      <div class="card-header">
+        <div>
+          <h2>Tree Traversals Explorer</h2>
+          <p class="section-desc">Examine record sequences generated by the three standard tree traversal algorithms</p>
+        </div>
+        <div class="traversal-tabs">
+          <button class="tab-btn active" data-traversal="inorder">In-Order (Ascending)</button>
+          <button class="tab-btn" data-traversal="preorder">Pre-Order (Hierarchy)</button>
+          <button class="tab-btn" data-traversal="postorder">Post-Order (Cleanup)</button>
+        </div>
+      </div>
+
+      <div class="traversal-display">
+        <div class="traversal-info" id="traversal-info">
+          <strong>In-Order Traversal:</strong> Traverses Left Subtree &rarr; Root &rarr; Right Subtree. Yields student IDs in sorted ascending sequence.
+        </div>
+        <div class="traversal-chips" id="traversal-chips">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p>Real-Time Student Record Management System &bull; AVL Tree Backend written in C with Winsock HTTP Server</p>
+      <p class="footer-meta">Guaranteed O(log n) Balanced Operations &bull; Light-Mode Minimalist Design for Teachers</p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Area -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>
