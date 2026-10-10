@@ -23,7 +23,6 @@ const studentTableBody = document.getElementById('student-table-body');
 const tableFilter = document.getElementById('table-filter');
 const treeSvg = document.getElementById('tree-svg');
 const treeEmptyState = document.getElementById('tree-empty-state');
-const btnRefreshTree = document.getElementById('btn-refresh-tree');
 const btnSeed = document.getElementById('btn-seed');
 const btnClear = document.getElementById('btn-clear');
 const traversalChips = document.getElementById('traversal-chips');
@@ -82,7 +81,6 @@ function setupEventListeners() {
   });
 
   // Action Buttons
-  btnRefreshTree.addEventListener('click', () => loadTreeVisualization());
   btnSeed.addEventListener('click', handleSeedData);
   btnClear.addEventListener('click', handleClearTree);
 }
@@ -177,7 +175,6 @@ function renderStudentTable(students) {
       <td>${escapeHtml(student.contact || '-')}</td>
       <td>${escapeHtml(student.dob || '-')}</td>
       <td class="text-right">
-        <button class="table-btn table-btn-view" onclick="lookupStudent(${student.student_id})">Inspect</button>
         <button class="table-btn table-btn-delete" onclick="handleDeleteStudent(${student.student_id})">Delete</button>
       </td>
     `;
@@ -408,8 +405,10 @@ function renderSvgTree(root) {
   const svgHeight = Math.max(380, (depth + 1) * 90);
 
   treeSvg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
-  treeSvg.style.width = `${svgWidth}px`;
-  treeSvg.style.height = `${svgHeight}px`;
+  treeSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  treeSvg.style.width = '100%';
+  treeSvg.style.maxWidth = '100%';
+  treeSvg.style.height = 'auto';
 
   const nodeRadius = 24;
   const levelHeight = 80;
